@@ -1,0 +1,9 @@
+
+*.aux
+*.log
+*.out
+*.gz
+*.blg
+*.bbl
+.Rhistory
+.RData
