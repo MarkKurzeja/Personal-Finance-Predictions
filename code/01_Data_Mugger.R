@@ -11,7 +11,7 @@ library(forcats)
 library(stringr)
 
 
- setwd("C:/Users/Mark/Dropbox/Graduate School/05) Courses/SI 671/Personal-Finance-Predictions")
+setwd("C:/Users/Mark/Dropbox/Graduate School/05) Courses/SI 671/Personal-Finance-Predictions")
 
 data <- read.table("./data/data_20181112.txt", sep = "\t", comment.char = "#", fill = T, header = T)
 
@@ -22,68 +22,65 @@ ndat <- data %>%
   mutate(Outflow = as.character(Outflow))
 ndat$Outflow %<>% stringr::str_remove(string = .,pattern =  "[\\$| ]") %>% as.numeric()
 ndat %<>% filter(!is.na(Outflow))
+# Ensure that the multiple counts are satisified
+ndat %<>% 
+  group_by(Date) %>% 
+  summarize(Outflow = sum(Outflow)) %>% 
+  arrange(Date) %>% 
+  ungroup()
 
-# Grouping by month
-mdat <- ndat %>% 
-  group_by(Year = year(Date), Month = month(Date)) %>%
-  summarize(Monthly = sum(Outflow))
+# Begin by merging the data with all of the dates
+all_days = data.frame(Date = seq(0, mdy("11/21/2018") - min(ndat$Date)) + min(ndat$Date))
+full_dat <- left_join(all_days, ndat)
+full_dat$Outflow[is.na(full_dat$Outflow)] = 0
+# Merge multiple days worth of data
+full_dat %<>% 
+  group_by(Date) %>% 
+  summarize(Outflow = sum(Outflow)) %>% 
+  arrange(Date) %>% 
+  ungroup()
 
-# Plot for the project
-mdat %>% 
-  mutate(Date = lubridate::make_date(Year, Month, 1)) %>% 
-  ggplot() + 
-    geom_line(aes(Date, Monthly)) + 
-  ggtitle("Spending on One Particular Category since July 2016") +
-  labs(y = "Monthly Spending") + 
-  ggsave(path = "./figures/", device = "png", filename = "Spending_Example.png")
 
-# Loss function
-myloss <- function(actual, error) {
-  return(abs(actual - error))
+
+# Begin creating the autoregressive models
+
+# ar_data_full is the autoregressive matrix using lags 
+# and has zeros present in the data
+
+# Prediction - keep feeding data back into the model - 
+# it should generate a full sequence
+ar_data_full <- list()
+for (lag in 1:30) {
+  ar_data_full[[lag]] = ldply((lag + 1):nrow(full_dat), function(i) {
+    d = full_dat$Outflow[seq(i - lag, i - 1)]
+    v = full_dat$Outflow[i] 
+    data.frame(y = v, lag = t(rev(d)))
+  }) 
 }
 
-# Baselines - Lookback Average
-all_opts = expand.grid(mend = 5:(length(mdat$Year) - 1), lookback = 0:15)
+# ar_data_wo_zeros removes the zeros from the previous equation
+# which ensures that the measurements are now only on the days
 
-baseline_results <- adply(.data = all_opts, .margins = 1, .fun = function(x) {
-  mend = x$mend
-  lookback = min(x$lookback, mend)
-  prediction = mean(mdat$Monthly[(mend - lookback):mend])
-  data.frame(pred = prediction, actual = mdat$Monthly[mend + 1], Type = sprintf("Mean(lookback = %i)", x$lookback))
+# Prediction - need a seperate model for zeros - iterate
+ar_data_wo_zeros <- list()
+for (lag in 1:30) {
+  ar_data_wo_zeros[[lag]] =
+    ldply((lag + 1):nrow(full_dat), function(i) {
+      d = ndat$Outflow[seq(i - lag , i - 1)]
+      v = ndat$Outflow[i] 
+      data.frame(y = v, lag = t(rev(d)))
+    }) 
+}
+
+# Running Monthly Predictions - this is going to be a running 30 day sum window so 
+# that we can remove most of the noise of the predictions of the zeros
+
+window_dat <- ldply(31:nrow(full_dat), function(i) {
+  data.frame(Date = full_dat[i, "Date"], Outflow = sum(full_dat$Outflow[seq(i - 30, i - 1)]))
 })
 
-baseline_results %<>% 
-  mutate(error = myloss(actual, pred)) %>% 
-  group_by(Type) %>% 
-  summarize(error = mean(error))
 
-xtable::xtable(baseline_results)
 
-baseline_results %>% 
-  ggplot() + 
-  geom_point(aes(y = fct_rev(Type), x = error)) + 
-  labs(y = "Type", x = "Mean Error") + 
-  ggtitle("Mean Prediction Error for Baseline", "Using the Mean to Predict k + 1")
-  ggsave(path = "./figures/", device = "png", filename = "Lagged_Mean_Prediction_Results.png")
 
-# Arima Output 
-all_opts = expand.grid(mend = 5:(length(mdat$Year) - 1), one = c(0,1), two = 0, three = 0:2)
 
-arima_results <- adply(.data = all_opts, .margins = 1, .fun = function(x) {
-  mend = x$mend
-  mmod <- arima(x = mdat$Monthly[1:mend], order = c(x$one,x$two,x$three))
-  prediction = predict(mmod,1)$pred[1]
-  data.frame(pred = prediction, actual = mdat$Monthly[mend + 1], Type = sprintf("Arima(%i,%i,%i)", x$one, x$two, x$three))
-})
-
-arima_results %<>% 
-  mutate(error = myloss(actual, pred)) %>% 
-  group_by(Type) %>% 
-  summarize(error = mean(error))
-
-arima_results %>% 
-  ggplot() + 
-  geom_point(aes(x = error, y = Type)) +
-  ggtitle("Arima Modeling Error")
-ggsave(path = "./figures/", device = "png", filename = "Arima_Modeling_Error_Init.png")
 
