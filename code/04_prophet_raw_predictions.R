@@ -44,25 +44,3 @@ prophet_ar_wzeros_results <- a_ply(opts_matrix, 1, function(drow){
   
   # plot(mmod, forecast)
 }, .progress = progress_win(title = "Prophet Raw Predictions (04)"))
-
-# p1 <- prophet_ar_wzeros_results %>%
-#   ggplot() + 
-#   geom_line(aes(x = interval_length, y = error)) + 
-#   geom_hline(linetype = 2, yintercept = 0) + 
-#   ggtitle("Facebook Prophet Predictions on Raw Time Series", 
-#           "This method is predicting on the zero-inflated time series") +
-#   labs(x = "Number of Training Points", y = "Absolute Error")
-# 
-# 
-# p2 <- prophet_ar_wzeros_results %>% 
-#   ggplot() + 
-#   geom_point(aes(x = true_value, y = expected, color = interval_length)) +
-#   geom_abline(slope = 1, intercept = 0, color = "blue") + 
-#   ggtitle("Facebook Prophet Expected Vs True Distribution ") + 
-#   labs(x = "Actual Value", y = "Predicted Value")
-# 
-# write.table(data.frame(a = 1, b = 2), row.names = F, col.names = F, sep = ",")
-# write.table(t(c("Blue", "Green")), row.names = F, col.names = F, sep = ",")
-# 
-# 
-# ggsave(plot = grid.arrange(p1,p2), filename = "./figures/prophet_errors_w_zeros.pdf", device = "pdf", width = 10, height = 5, dpi = 500)

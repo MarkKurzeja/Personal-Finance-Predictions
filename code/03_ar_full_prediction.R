@@ -3,29 +3,39 @@ setwd("C:/Users/Mark/Dropbox/Graduate School/05) Courses/SI 671/Personal-Finance
 source("./code/01_Data_Mugger.R")
 
 library(e1071)
+library(gbm)
 
-begin = 1
 sizemonth = 30
 
 opts_matrix <- expand.grid(
-  model = c("GLM", 
-            "GEE_AR1", 
-            "GEE_exch", 
-            "GEE_indep", 
-            "GLM_Smooth_Spline_3", "GLM_Smooth_Spline_8", 
-            "GLM_Interaction", "SVM_Linear", "SVM_Radial", 
-            "SVM_polynomial"),
-  end = seq(75, nrow(full_dat) - sizemonth, by = 10),
-  lag = seq(5, 30, by = 5)
-  )
+  model = c(
+    "GLM", 
+    # "GEE_AR1", 
+    # "GEE_exch", 
+    # "GEE_indep", 
+    # "GBM", 
+    "Random_Forest", 
+    "Decision_Tree", 
+    # "GLM_Interaction", 
+    "SVM_Linear", 
+    "SVM_Radial", 
+    "SVM_polynomial"
+  ),
+  begin = seq(1, 750, by = 25), 
+  end = seq(45, 800, by = 10),
+  lag = c(20)
+)
+opts_matrix %<>% filter(end - lag - 15 > begin)
 
-ar_full_prediction_results <- adply(opts_matrix, 1, function(drow) {
+printed_header = T
+a_ply(opts_matrix, 1, function(drow) {
   
+  begin = drow$begin
   lag = drow$lag
   end = drow$end
   model = drow$model
   dat <- ar_data_full[[lag]]
-  # browser()
+  
   # Get the training data for this set as well as the sum we are 
   # looking for
   training_data = dat[seq(1, end - lag), ]
@@ -38,47 +48,45 @@ ar_full_prediction_results <- adply(opts_matrix, 1, function(drow) {
     mod <- glm(y ~ (lag.1 + lag.2 + lag.3)^2 + ., data = training_data)
   } else if (model == "GLM") {
     mod <- glm(y ~ ., data = training_data)
+  # } else if (model == "GLM_Gamma") {
+  #   mod <- glm(y ~ ., data = training_data, family = Gamma)
   } else if (model == "SVM_Linear") {
     mod <- e1071::svm(y ~ ., data = training_data, kernel = "linear")
   } else if (model == "SVM_Radial") {
     mod <- e1071::svm(y ~ ., data = training_data, kernel = "radial")
   } else if (model == "SVM_polynomial") {
     mod <- e1071::svm(y ~ ., data = training_data, kernel = "polynomial")
-  } else if (model == "GLM_Smooth_Spline_3") {
-    sprintf("Run 3 | %i\n",end) %>% print
-    if(end < 150) {
-      return(data.frame(model = NA, lag = NA, error = NA, true = NA, expected = NA))
-    }
-    mod <- glm(y ~ . +
-                 splines::bs(lag.1, df = 3) +
-                 splines::bs(lag.2, df = 2) +
-                 splines::bs(lag.3, df = 2),
-               data = training_data)  
-  } else if (model == "GLM_Smooth_Spline_8") {
-    sprintf("Run 8 | %i\n",nrow(training_data)) %>% print()
-    if(end < 225) {
-      return(data.frame(model = NA, lag = NA, error = NA, true = NA, expected = NA))
-    }
-    mod <- glm(y ~ . +
-                 splines::bs(lag.1, df = 8) +
-                 splines::bs(lag.2, df = 5) +
-                 splines::bs(lag.3, df = 3),
-               data = training_data)  
-  } else if (model == "GEE_AR1") {
-    mod <- geepack::geeglm(y ~ ., 
-                           id = sort(rep(1:30, length = nrow(training_data))),
-                           data = training_data,
-                           corstr = "ar1")
+  # } else if (model == "GBM") {
+    # if (end - begin < 100) {
+      # return("blue")
+    # }
+    # print("Hit...")
+    # mod <- gbm::gbm(y ~ ., data = training_data, distribution = "gaussian", n.trees = 100)
+  } else if (model == "Random_Forest") {
+    mod <- randomForest::randomForest(y ~ ., data = training_data)
+  } else if (model == "Decision_Tree") {
+    mod <- rpart::rpart(y ~ ., data = training_data)
+  # } else if (model == "GEE_AR1") {
+  #   mod <- geepack::geeglm(
+  #     y ~ ., 
+  #     id = sort(rep(1:30, length = nrow(training_data))),
+  #     data = training_data,
+  #     corstr = "ar1"
+  #   )
   } else if (model == "GEE_exch") {
-    mod <- geepack::geeglm(y ~ ., 
-                           id = sort(rep(1:30, length = nrow(training_data))),
-                           data = training_data,
-                           corstr = "exchangeable")
-  } else if (model == "GEE_indep") {
-    mod <- geepack::geeglm(y ~ ., 
-                           id = sort(rep(1:30, length = nrow(training_data))),
-                           data = training_data,
-                           corstr = "independence")
+    mod <- geepack::geeglm(
+      y ~ ., 
+      id = sort(rep(1:30, length = nrow(training_data))),
+      data = training_data,
+      corstr = "exchangeable"
+    )
+  # } else if (model == "GEE_indep") {
+  #   mod <- geepack::geeglm(
+  #     y ~ ., 
+  #     id = sort(rep(1:30, length = nrow(training_data))),
+  #     data = training_data,
+  #     corstr = "independence"
+  #   )
   } 
   
   # Run the model forward
@@ -90,41 +98,28 @@ ar_full_prediction_results <- adply(opts_matrix, 1, function(drow) {
     input_data <- append(input_data, new_val)
   }
   
-  final_result <- sum(input_data[seq(end + 1, end + sizemonth)])
+  final_result <- sum(input_data %>% tail(sizemonth))
   error = final_result - output_value
   
-  data.frame(model = model, lag = lag, error = error, true = output_value, expected = final_result)
-}, .progress = progress_win()) %>% filter(!is.na(model))
+  write.table(x = 
+                data.frame(
+                  begin = begin, 
+                  end = end, 
+                  interval_length = end - begin + 1, 
+                  model = model, lag = lag, 
+                  error = round(error, 2), 
+                  true = round(output_value,2), 
+                  expected = round(final_result,2)
+                ),
+              row.names = F, 
+              col.names = printed_header, 
+              sep = ",", 
+              file = "./saved_runs/03_ar_full_prediction_results.csv", 
+              append = T)
+  if(printed_header) {printed_header <<- F}
+  
+}, .progress = progress_win("Running 03 File"))
 
-# Preprocess the data setting the upper and lower bounds and removing extreamly high and extreme low
-# values
-ar_full_prediction_results %<>% filter(!is.na(expected))
-mmedian <- function(x, low = -1000, high = 1000) {median(c(low,high,x))}; mmedian <- Vectorize(mmedian)
-ar_full_prediction_results$expected %<>% mmedian
-ar_full_prediction_results$error %<>% mmedian
 
-# Plottings
-ar_full_prediction_results %>% 
-  ggplot() +
-  # scale_y_continuous(limits = c(-1000,1000)) + 
-  geom_line(aes(x = end, y = error, color = factor(lag), group = lag)) +
-  facet_wrap(~model, scales = "free_y") +
-  geom_smooth(aes(x = end, y = error)) + 
-  ggtitle("Model Errors Using Autoregressive Methods and Recursive Computation", 
-          "This analysis included zeros into the lag terms") + 
-  labs(x = "Number of Training Points", y = "Absolute Error") +
-  geom_hline(linetype =2, yintercept = 0)
 
-ggsave("./figures/ar_errors_w_zeros.pdf", device = "pdf", width = 10, height = 5, dpi = 500)
 
-ar_full_prediction_results %>% 
-  ggplot() + 
-  geom_point(aes(x = true, y = expected)) +
-  # geom_point(aes(x = expected, y = 1))  
-  facet_wrap(~model, scales = "free") + 
-  geom_abline(slope = 1, intercept = 0, color = "black") + 
-  geom_smooth(aes(x = true, y = expected)) +
-  ggtitle("Model Real Vs Expected Values Using Autoregressive Methods and Recursive Computation", 
-          "This analysis included zeros into the lag terms")
-
-ggsave("./figures/ar_truevexpected_w_zeros.png", device = "png", width = 10, height = 5)

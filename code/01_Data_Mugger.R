@@ -84,3 +84,20 @@ window_dat <- ldply(31:nrow(full_dat), function(i) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
