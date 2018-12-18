@@ -13,8 +13,12 @@
 
 \documentclass[11pt,a4paper]{article}
 \usepackage[hyperref]{naaclhlt2018}
-%\usepackage{sourcesanspro}
-\usepackage{libertine}
+\usepackage{kpfonts}
+%\usepackage[T1]{fontenc}
+%\usepackage{PTSans}
+%\usepackage{libertine}
+%\usepackage{libertinust1math}
+\renewcommand{\descriptionlabel}[1]{\hspace{\labelsep}\textsc{#1}}
 %\renewcommand{\familydefault}{\sfdefault}
 \usepackage{latexsym}
 \usepackage{booktabs}
@@ -37,7 +41,6 @@
 }{
 
 }
-\newcommand{\beer}{\textsc{Beer Prediction}\xspace}
 \aclfinalcopy % Uncomment this line for the final submission
 %\def\aclpaperid{***} %  Enter the acl Paper ID here
 
@@ -46,6 +49,12 @@
 % to show all the authors. Please do not make the titlebox
 % smaller than 5cm (the original size); we will check this
 % in the camera-ready version and ask you to change it back.
+
+
+\newcommand{\beer}{\textsc{Beer Prediction}\xspace}
+\newcommand{\bplots}{\textit{bias-plots}\xspace}
+
+
 
 \newcommand\BibTeX{B{\sc ib}\TeX}
 
@@ -63,7 +72,6 @@
 
 Forecasting the future is hard. Forecasting ones financial future can be even harder. Using techniques from data mining, we introduce \textsc{Best Estimators of Economic Restraints} (\beer) to create an unbiased estimator of future cashflow requirements using a novel dataset of years worth of personal financial data from the author. With applications in personal finance, budgeting, retirement planning, and small scale prediction, these methods create nearly unbiased estimators of future outflows despite the data exhibiting sparsity, leptokurtosis, temporal correlations, and small sample-size observations. 
 
-%For the last five-plus years, as a part of my monthly budgeting, I've been collecting information about every single dollar that I have ever spent during my times in junior year of college, senior year of college, my time living in Manhattan, and through my first and second year of graduate school. During this time, I found that budgeting and the prediction of even my own personal finances have been incredibly difficult and sometimes downright frustrating. While most of the time, the consequences for not budgeting exactly can be relatively minimal, there have been moments in my life where prediction errors have resulted in the times that have caused financial difficulties. Because of the emotional and financial difficulties that these shortfalls can cause, I have tried over the years to create simple metrics to predict upswings in spending and prevent myself from overspending. My goals for this project are twofold, 1) I would like to create better predictions of my own financial spending on variable items such as eating out, entertainment, and other expenses that are within my control, and 2), I would like to synthesize these into in index or prediction scale that I can use to monitor my current financial state which acts as a forward indicator of potential financial shortfalls in the future.
   
 \end{abstract}
 
@@ -75,25 +83,28 @@ Imagine you and I are out for drinks. We go to the bar, and begin talking about 
 
 \begin{quote}
 	\it \color{harvardcrimson}
-	``Pull out a piece of paper. Write down the exact dollar amount that you think you’re going to spend this month on anything you like. If you’re right, within \$100, I’ll give you \$1,000. Otherwise, you will owe me \$1,000'' 
+	``Pull out a piece of paper. Write down the exact dollar amount that you think you’re going to spend this month on anything you like. If you're right, within \$100, I'll give you \$1,000. Otherwise, you will owe me \$1,000'' 
 \end{quote} 
 
-Do you think I should take the bet? If the payoffs or tolerance were different should I take the bet? How would this change my spending in the short term? I’m at a bar, after all. Should I order a cheaper Busch Light instead of my favorite beer, a Blue Moon, to avoid the chance of going over? Would little changes like that make a difference? We will talk about the solution to this problem, in an optimal setting, in Section \ref{sec:problem}.
+Do you think I should take the bet? If the payoffs or tolerance were different should I take the bet? How would this change my spending in the short term? I’m at a bar, after all. Should I order a cheaper Busch Light instead of my favorite beer, a Blue Moon, to avoid the chance of going over? Would little changes like that make a difference? We will talk about the solution to this problem, in an optimal setting, in Section \ref{sec:problem} and exploring methods for prediction in Section \ref{sec:methodology} and Section \ref{sec:results}.
 
-Wouldn’t it be nice to predict spending in advance so that you don’t have to wonder? Whether its to lessen the surprise of the unpredictable, or to decide what beer you’re able to afford for the night, BEER prediction aims to inform personal financial decisions in the short term for long term success. 
-
-
-
-%Managing one's own finances can be hard. It is no secret that the average American is rather terrible with money. It is estimated that as much as 20\% of the population has a negative net worth \cite{BNP}, and during my time working in the financial services industry, I've seen the results of many poor financial decisions completely wreck people with incomes  tens of times what the average American makes. I find myself to be fortunate that I have been able to maintain somewhat strict rules for myself, and for the past five or so years I have been tracking every single dollar that I've ever spent by hand. I've done this via the use of a budgeting app called YNAB. There have been times that I have been very good at estimating my future expenses, and when this happens I'm better able to predict my financial picture during the coming months. Especially whenever I have been in college, and in grad school, there have been times that I've had to go almost a full year without a paycheck. Whenever I lived in Manhattan, large expenses such as rent meant that if I miscalculated my other expenditures, I would not have enough money to do simple things such as make it back home for the holidays or see my girlfriend at the time. 
+Wouldn't it be nice to predict spending in advance so that you don't have to wonder? Whether its to lessen the surprise of the unpredictable, or to decide what beer you're able to afford for the night, \beer aims to inform personal financial decisions in the short term for long term success. 
 
 \subsection{Why Care?}
 
-Sometimes the consequences of not predicting your financial picture accurately can be devastating. Financial shortfalls quickly can lead to reliance on credit which often carries excessive interest rates and borrowing restrictions. If left unmanaged, this debt can quickly ``snowball'' and become significant in its own right. Financial surprises can shake even the most diligent budgeters, and so in order to begin assessing the impact of spending today on the financial future of someone tomorrow, a natural first step is towards the prediction of the needs of tomorrow. This step of prediction is the first of a few steps that I aim to take to solve a problem that I call, more generally, \textit{the budgeting problem}, and this will be explained in a lot more detail in Section \ref{sec:problem}. In Section \ref{sec:related_work} and Section \ref{sec:methodology}, I will go into how this problem has been approached by others and how I aimed to solve the prediction problem. In Section \ref{sec:results} I will discuss some of the methods that are a part of the \beer framework. 
+\newcommand{\budgetprob}{\textsc{Budgeting Problem}\xspace}
+\newcommand{\preprob}{\textsc{Prediction Problem}\xspace}
+
+Sometimes the consequences of not predicting your financial picture accurately can be devastating. Financial shortfalls quickly can lead to reliance on credit which often carries excessive interest rates and borrowing restrictions. If left unmanaged, this debt can quickly ``snowball'' and become significant in its own right. 
+
+Financial surprises can shake even the most diligent budgeters, and so in order to begin assessing the impact of spending today on the financial future of someone tomorrow, a natural first step is towards the prediction of the needs of tomorrow. Prediction of the needs of tomorrow, if accurate, would allow one to adjust spending in real time to prevent overspending, and this would allow them to better plan out their financial future. 
+
+This problem, of predicting the needs of tomorrow, is only a small part of a problem that I will call the This step of prediction is the first of a few steps that I aim to take to solve a problem that I call, more generally, the \budgetprob, and this will be explained in a lot more detail in Section \ref{sec:problem}. In Section \ref{sec:related_work} and Section \ref{sec:methodology}, I will go into how this problem has been approached by others and how I aimed to solve the prediction problem. In Section \ref{sec:results} I will discuss some of the methods that are a part of the \beer framework. 
 
 \section{Problem Definition and Data} \label{sec:problem}
 
 \subsection{The Budgeting Problem}
-The prediction of future outflows is only a subset of a problem that I will call the \textit{Budgeting Problem}. The Budgeting Problem is as follows:
+The prediction of future outflows is only a subset of a problem that I will call the \budgetprob. The \budgetprob is as follows:
 \begin{quote}
 	Imagine you have $D$ dollars to spend in a given time period of $T$ days. Conditional on having spent $C$ dollars so far (including future contractual payments), what is the probability that you will spend $x \in [0,\infty)$ in the next $T_d$ days assuming that you are prediction on day $T_b$.  
 \end{quote}
@@ -117,30 +128,24 @@ and the probability of spending within \$100 of your goal, as we posited as a hy
 \begin{align*}
 \int_{D - 100}^{D + 100} P(X | T_b, T_d, D, C) \,\partial x
 \end{align*}
-Using the math of the \textit{Budgeting Problem}, one could figure out what the optimal decision is to the hypothetical bet in Section \ref{sec:introduction} is when combined with a loss function. 
+Using the math of the \budgetprob, one could figure out what the optimal decision is to the hypothetical bet in Section \ref{sec:introduction} is when combined with a loss function. 
 
-Despite the great properties of this function, it is \textit{very} hard to estimate in practice. This is the golden standard of all prediction in personal finance. To make this problem tractable, we will instead deal with a subset of the \textit{Budgeting Problem}, called the \textit{Prediction Problem} to gain insight into this. 
+Despite the great properties of this function, it is \textit{very} hard to estimate in practice. This is the golden standard of all prediction in personal finance. To make this problem tractable, we will instead deal with a subset of the \budgetprob, called the \preprob to gain insight into this. 
 
-The \textit{Prediction Problem} is a subset of the \textit{Budgeting Problem} as defined above. The prediction problem assumes the following:\
+The \preprob is a subset of the \budgetprob as defined above. The \preprob assumes the following:\
 
 \begin{enumerate}
-\item $T_b \perp X$: each time period, with respect to prediction, is independent of $X$, equivalent to any other time period beginning, and not important to the prediction of $X$. This is a temporal independence assumption that ignored changing prediction patters to ensure that the sparsity of the data is somewhat combatted. 
-\item $T_d = 30$: the prediction problem focuses on a 30 day lookahead prediction
+\item $T_b \perp X$: each time period, with respect to prediction, is independent of $X$, equivalent to any other time period beginning, and not important to the prediction of $X$. This is a temporal independence assumption that ignored changing prediction patters to ensure that the sparsity of the data is somewhat combated. 
+\item $T_d = 30$: the \preprob focuses on a 30 day lookahead prediction
 \item $C = 0$: there has been no contractual spending for the month assumed and no spending we need to account for in the beginning of the month that will be added to $X$
 \item $D \perp X$: $D$ will be assumed to be independent of $X$. This, in reality, is an assumption that may not hold since your spending habits would be expected to change given the amount of money that you have to spend. 
 \item The expectation of $X$ contains all of the information about $X$. Some methods will allow us to model the variance of the expectation of $X$, but they will not allow us to estimate the variance of $X$ directly. In the instances where the variance of the expectation of $X$ is difficult or impossible to find conditional on a model, we will have to assume the variance of the expectation of $X$ is zero
 \end{enumerate}
 
-In this way, we are solving each of the issues in the data with the following:
-\missingfigure{Fix this}
-\begin{description}
-	\item[Sparsity] 
-	\item[Leptokurtosis] description
-	\item[Temporal Correlations] description
-	\item[Small Sample Size] description
-\end{description}
+In this way, the \preprob is, at its very heart, a ``best prediction'' of the variable spending of someone under loose independence assumptions of monetary constants. This is a key insight and is necessary to understanding why the dataset was chosen in the way that it was. 
 
-Thus, we are trying to solve the following with the prediction problem
+
+Thus, we are trying to solve the following with the \preprob
 \begin{align*}
 \mathbb{E}_X\left[ P(X | T = 30, D, C = 0) \right]
 \end{align*}
@@ -149,23 +154,40 @@ which by the independence of $D$ and $X$ is equivalent to
 \mathbb{E}_X\left[ P(X | T = 30, C = 0) \right]
 \end{align*}
 
-In this way, the Prediction Problem is, at its very heart, a ``best prediction'' of the variable spending of someone under loose independence assumptions of monetary constants. This is a key insight and is necessary to understanding why the dataset was chosen in the way that it was. 
 
-\missingfigure{Pick up here}
+\subsection{Issues with the Data}
+In this way, we are solving each of the issues in the data with the following:
+\begin{description}
+	\item[Sparsity] There are many days in a row that I will not spend any money. In this way, only about 25-30\% of the time series is non-zero which means that the length of the time series is not a good indication of the amount of data
+	\item[Leptokurtosis] If we think about the kurtosis of a normal distribution, it is three. A t-distribution with 2-4 degrees of freedom has a kurtosis of six. My data has a kurtosis of twenty-two which means that it is characterized by a large amount of spurious activity that is very difficult to characterize, and outliers tend to dominate the data
+	\item[Temporal Correlations] When I spend money, some parts of the year I tend to spend quite a lot of money and some parts of the year I will not spend anything. This tendency of the spending to "cluster" tends to indicate that spending habits exhibit short term and sometimes long term correlations. 
+	\item[Small Sample Size] At the end of the data, this data is expensive in time to gather. If we need to get 1,000 data points to accuracy predict spending, I will need to wait almost three years to make predictions for most individuals. The challenge is to use as little data as possible to predict measurements, and as a result, the largest challenge, besides the challenges above is how to work with small sample sizes in generalizing predictions for the highest degree of accuracy. 
+\end{description}
 
+\subsection{Evaluation Metrics}
+For this analysis, the evaluation method that I will use are \bplots. These plots the length of the training data that is used in a prediction against the average lookahead error that each of these have. 
 
-and while financial tracking is rare due to the effort involved in collecting the data, sites like Mint have made the collecting of this data effortless for the user. While 
-
-
-My goal for this project is twofold: 
+First, we get the error data using the following method:
 \begin{enumerate}
-	\item I want to create a system of models that are able to better predict my reoccurring variable spending habits using his little of data as possible to get the most accurate predictions on a monthly basis.  I want to use as little of data as possible in order to ensure that the system can work for other people who do not have a large financial history such as I do. And I want the system to be is accurate as it possibly can given the information that I put in.
-	\item I want to distill this prediction mechanism into an index they can track how people are doing overtime. Like a performance gauge, I want someone to know when they are doing well and are spending under what we would expect them to be spending at any given moment, and I want them to know whenever they are spending poorly and they need to curtail their current expenditures in order to get back on track. I think the simple metrics such as financial ratios aim to do this four people in a hand calculation sort of way. My aim is to make something that someone can track “with their eyes” so that they can see if they are doing well and so that they can manage their finances eventually on their own without the need of a financial adviser to tell them if they are doing well or not. 
+	\item Let $ l \in \left[ 5, 800 \right]   $ be the length of the training set. 
+	\item Let $ t_b $ be the beginning of the training set. So the data that we will train on will be from $ \left[ t_b, t_b + l \right]  $ inclusive
+	\item Let $y $ be the sum of the expenditures from $ \left[ t_b + l + 1, t_b + l + 30 \right]  $. This is the 30 day look ahead value
+	\item Train a model on the training data and generate a prediction $ \hat{y} $ for $ y $. 
 \end{enumerate}
+Then we will take this data and do the following to generate the plot
+\begin{enumerate}
+	\item Group the data by each $ l $ and compute the arithmetic mean error of all of the $ \hat{y} $
+	\item For each $ l $, plot the mean error
+\end{enumerate}
+This plot can be useful for interpreting several features of each algorithm:
+\begin{description}
+	\item[Unbiasedness] If an algorithm is unbiased, especially for lots of sizes of training data, then we will see that the average of the errors will be approximately zero across the entire plot. That is, if all of the points are on the x-axis, in the range of $ l $, then the algorithm is unbiased. If there is any deviation from this line, then it means for that number of training points, the algorithm was systemically over or under predicting the real result.
+	\item[Best Training Size] For this particular dataset, what is the best size of training data to use? Can we get away with only training on 50 data points or do we need 200 data points in order to sufficiently train the model
+	\item[Autocorrelation] Are the errors in the model autocorrelated? Are there parts of the training space that are very difficult to predict, or is this something that is random and essentially Gaussian style noise? How the points are plotted, and how they vary around the mean, give us an indication of this.  
+\end{description}
 
-This project is not solely focused on predictions for one month out. This project is also not simply about forecasting. The models that I wish to build I want to be able to derive insights from. I want to be able to take the results and put them in the words and explain to people why the model may have over or under predicted in a given month, and why it thinks that its predictions are going to be on track. 
 
-My evaluation metrics will include asymmetric L1 loss (the losses resulting from over-prediction and a shortfall of money are far less severe than the losses resulting from foregone investment interest resulting from under budgeting and capital surplus). I want to run a conjoint analysis to determine what loss I can create that best aligns with how I experience loss. For this, I will place a large number of scenarios in front of myself and I want to evaluate which I would prefer in a given circumstance. For example, would I prefer to over budget by \$100 or would I prefer to under-budget vacation by \$80 and not be able to go out to dinner on the last night? Answers to questions such as these will be very useful in determining how I should assign loss measures and to which categories of my budget I should be the most focused on. 
+
 
 \subsection{The Data Set}
 I have every single dollar tallied that I have spent in the past few years in my budgeting program. The data for a transaction includes the following:
@@ -182,275 +204,257 @@ I have every single dollar tallied that I have spent in the past few years in my
 
 Further to each of the data points above, I have the total amount spent in each category during the last five years and I can see how I planned for expenses in the future using the data from my budgeting values. 
 
-Some of the challenges that I see from working with this data include:
-\begin{description}
-	\item[Sparsity] The fact that I only record a transaction once it happens and not when I expect it to occur means that for certain categories that are less frequent, there could be very little data predicting incidence in the future. For instance, I have only taken two vacations in the last three years which means that months were vacations are in the mix will be mostly zero expenditure with some very large outliers
-	\item[Zero-inflated models] To the sparsity point, most of the entries in the data are zero. Since some events only occur every other week or similar, I have to model both the non-occurrence of an event as well as the expectation when it does occur.
-	\item[Privacy] This model will have to be anoymonized to a certain extent since this is a complete account of my financial picture. As a result, some censoring or name replacement may be necessary depending on the features that I find to be useful in predicting outflows.
-\end{description}
+The dataset that I am working with is 2625 transactions spread across several years worth of data. I am currently working on integrating older data as well which will get the dataset to be around 4000 transactions in total, but as of right now, the dataset will remain at 2625 transactions. Since my problem inherently is a time-series prediction problem using sparse data, it is a continuous regression problem and with transaction data as granular as daily, I have a lot of features that I have been working to engineer for the dataset including running averages, lag period prediction, and other methods that may improve the prediction on the coming months.
 
-\begin{updatematerial}
-	The dataset that I am working with is 2625 transactions spread across several years worth of data. I am currently working on integrating older data as well which will get the dataset to be around 4000 transactions in total, but as of right now, the dataset will remain at 2625 transactions. Since my problem inherently is a time-series prediction problem using sparse data, it is a continuous regression problem and with transaction data as granular as daily, I have a lot of features that I have been working to engineer for the dataset including running averages, lag period prediction, and other methods that may improve the prediction on the coming months.
-	
-	Some of the most frequent features of the data include severe outliers and large periods of days where there are no transactions to note. When I lived in New York, there were entire month periods where I didn't eat much at all at a restaurant, and as a result, those months appear as dead-months in the dataset. Similarly, if I was out for my girlfriends birthday at the time, then I would see that this shows up as a clear outliers in the dataset. It is these sporattic measurements that make this a difficult prediction problem even for mean estimation and this is something that I am working on trying to figure out. 
-	
-	The data is as clean as my recording has been over the last three years. Since this register is tied to the cent to my bank accounts every week, I know that the data is good and it should be very clean, but the only information that I have on each transaction, other than the parties involved and the month, are the comments that I leave and there are many of them without a comment in the dataset. An example of the data is contained in Table \ref{exampledata}.
-	\begin{table*}
-		\resizebox{\textwidth}{!}{  
-			\begin{tabular}{cccccccc}
-				Account         &   Date    &     Payee     & Master Category &        Sub Category        &      Memo       & Outflow & Inflow \\ \midrule
-				Capital One Quicksilver & 8/13/2016 & Diner Airport &  Everday Wants  & Partying, Drinks, and Food &  Food airport   & \$24.04 & \$0.00 \\
-				Capital One Quicksilver & 8/13/2016 &   Quik Fill   &  Everday Wants  & Partying, Drinks, and Food &    Trip tea     & \$1.38  & \$0.00 \\
-				Cash In Wallet      & 8/20/2016 & Jakes Saloon  &  Everday Wants  & Partying, Drinks, and Food & Justin and Pete & \$27.00 & \$0.00 \\ \bottomrule
-			\end{tabular}
-		}
-		\caption{Three Data points from the data set}
-		\label{exampledata}
-	\end{table*}
-	
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.7\linewidth]{../figures/Spending_Example}
-		\caption{Monthly aggregation of spending for a particular category}
-		\label{fig:spendingexample}
-	\end{figure}
+Some of the most frequent features of the data include severe outliers and large periods of days where there are no transactions to note. When I lived in New York, there were entire month periods where I didn't eat much at all at a restaurant, and as a result, those months appear as dead-months in the dataset. Similarly, if I was out for my girlfriends birthday at the time, then I would see that this shows up as a clear outliers in the dataset. It is these sporadic measurements that make this a difficult prediction problem even for mean estimation and this is something that I am working on trying to figure out. 
+
+The data is as clean as my recording has been over the last three years. Since this register is tied to the cent to my bank accounts every week, I know that the data is good and it should be very clean, but the only information that I have on each transaction, other than the parties involved and the month, are the comments that I leave and there are many of them without a comment in the dataset. An example of the data is contained in Table \ref{exampledata}.
+\begin{table*}
+	\resizebox{\textwidth}{!}{  
+		\begin{tabular}{cccccccc}
+			Account         &   Date    &     Payee     & Master Category &        Sub Category        &      Memo       & Outflow & Inflow \\ \midrule
+			Capital One Quicksilver & 8/13/2016 & Diner Airport &  Everday Wants  & Partying, Drinks, and Food &  Food airport   & \$24.04 & \$0.00 \\
+			Capital One Quicksilver & 8/13/2016 &   Quik Fill   &  Everday Wants  & Partying, Drinks, and Food &    Trip tea     & \$1.38  & \$0.00 \\
+			Cash In Wallet      & 8/20/2016 & Jakes Saloon  &  Everday Wants  & Partying, Drinks, and Food & Justin and Pete & \$27.00 & \$0.00 \\ \bottomrule
+		\end{tabular}
+	}
+	\caption{Three Data points from the data set}
+	\label{exampledata}
+\end{table*}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../figures/Spending_Example}
+	\caption{Monthly aggregation of spending for a particular category}
+	\label{fig:spendingexample}
+\end{figure}
 	
 	
-\end{updatematerial}
 
 
 \section{Related Work} \label{sec:related_work}
 
 There has been a lot of work on personal forecasting but most of it, to maintain simplicity, has been based off of using simple averages and running averages to predict the spending in the coming months. 
 
-More advanced methods of prediction have, to my knowledge, never been used on personal financial data in this fashion before, and so I am to bring the more advanced analytical toolbox to the personal financial space in an effort to improve the forecasting accuracy and budgeting prediction. While methodologies are probably implemented in the private wealth space for ultra-high net worth clients, the people that need this prediction setup the most are the people who don't have the money to afford the inaccuracies that budgeting can allow in the first place. 
 
 The prediction problem for time series is well studied however, and from that perspective there are a variety of methods that have been brought to the table. Anything from ARIMA modeling to Facebook's Prophet have been found to be useful. Gaussian Processes are something that may be useful to get variance estimates for each of the predictions, and other models that allow for smoothing of noisy data may be useful as well. ASAP, which we saw in class, is something that may be able to take out a large variety of the variation that financial data often brings about as well. 
 
-\begin{updatematerial}
-	In \cite{SVMFinance}, the authors used SVM, training on several properties of the time series up until this point, to predict how the stock will develop in the coming months. For this projects, I could use similar features such as volatility in the previous periods as well as skew and other technical oscillators borrowed from technical finance such as the Relative Strength Index and the Commodity Channel Index to use as training features and then run supervised machine learning algorithm on the data. In this way, I could hope to get away from the nature of the time-series modeling I have been doing in order to begin creeping into the more classical approaches to prediction treating the new monthly average as a predictive of the previous months. 
-	
-	In \cite{LongTail}, the authors used extreme-value modeling to come up with predictions of tail-risk in their financial modeling. Looking at my project from this lens, this is the measure that I am trying my hardest to estimate. Seeing as most people don't really care about the expected value of their spending, but rather would like to know the maximum for risk modeling, this paper actually may have changed my problem statement for some of the modeling a little bit. I would like to explore how to use these models to better estimate tail risk, and I want to build a model that is able to account for the tail risk of my spending. 
-\end{updatematerial}
+In \cite{SVMFinance}, the authors used SVM, training on several properties of the time series up until this point, to predict how the stock will develop in the coming months. For this projects, I could use similar features such as volatility in the previous periods as well as skew and other technical oscillators borrowed from technical finance such as the Relative Strength Index and the Commodity Channel Index to use as training features and then run supervised machine learning algorithm on the data. In this way, I could hope to get away from the nature of the time-series modeling I have been doing in order to begin creeping into the more classical approaches to prediction treating the new monthly average as a predictive of the previous months. 
+
+In \cite{LongTail}, the authors used extreme-value modeling to come up with predictions of tail-risk in their financial modeling. Looking at my project from this lens, this is the measure that I am trying my hardest to estimate. Seeing as most people don't really care about the expected value of their spending, but rather would like to know the maximum for risk modeling, this paper actually may have changed my problem statement for some of the modeling a little bit. I would like to explore how to use these models to better estimate tail risk, and I want to build a model that is able to account for the tail risk of my spending. 
 
 
 \section{Methodology} \label{sec:methodology}
 
-Some of the methods that I plan to try for the forecasting piece of the assignment are as follows:
+\subsection{Data Processing}
+There were several data preprocessing methods that were chosen to facilitate prediction and allow for new 
+
+\newcommand{\yinyang}{\textit{Yin-Yang}\xspace}
+
+\begin{description}
+	\item[Raw Data] Many of the algorithms were tested using the raw data as a sequence. This was done to see if many of the algorithms could actually handle the data without further processing
+	\item[Autoregressive Data] Autoregressive matrices were built off of training sequences for prediction models. This method was used to discern if there was any improvement that advanced prediction methods could bring to the time series prediction task behind the \preprob
+	\item[\yinyang Data] I used a custom processing method that I will call the \yinyang Method for prediction Because much of the data consists of a spending measure and then a series of zeros and then another transaction and another series of zeros, \yinyang prediction aims to take the training data and build from it a series of the following form: $(Amount_t, Zeros_t) \rightarrow (Amount_{t + Zeros_t}, Zeros_{t + Zeros_t})$. In this way, the sequence of spending of $30, 0, 0 , 0 , 5, 10, 0, 0 , 2$ would be transformed into $(30, 3) \rightarrow (5,0) \rightarrow (10,2)$. Then methods were used created to take in a tuple of size two, like these and predict the next tuple in the sequence These \yinyang methods aimed to take advantage of the data generating process of spending followed by sometime until the next purchase
+	
+\end{description}
+
+\subsection{Description of Models}
+There were a variety of methods that were used on the data including the following models:
+\begin{description}
+	\item[ARIMA] ARIMA implementation used in base R with default parameters
+	\item[GLM] Generalized Linear Model ran using GLM in R with default settings
+	\item[SVM] E1071 SVM implementation in R using default settings with linear, radial, and polynomial kernels
+	\item[Random Forests] R implementation of Random Forests using default parameters
+	\item[Decision Tree] Decision trees from the Rpart package in R using default parameters
+	\item[Prophet] Facebook's Prophet Algorithm \cite{Fbook} as implemented in R
+%	\item[label] description
+\end{description}
+
+\subsection{Bringing Data and Models Together}
+In each case, the models will be evaluated in the holdout error for the time series aimed to be estimates of a statistical measure known as \textsc{LOO} - this is the leave-one-out cross validated error and it is one of the best measures of prediction error out-of-sample.
+
+For the raw data, the algorithm was as follows:
 \begin{enumerate}
-	\item As a baseline, how good / bad are running averages at predicting the future for financial data?
-	\item ARIMA as a baseline
-	\item Baysian Gaussian Processes as a means of modeling time series data with uncertainty estimates
-	\item Baysian Hierarchal Modeling to predict the distributions of 1) the occurrence of a day with a particular type of spending. i.e. did I buy groceries today? and 2) if spending occurs, what is the distribution of the spending? i.e. I'm going to the grocery store, what am I going to spend?
-	\item Facebook's Prophet - I've heard great things about the success of this system in predicting time series. I'm curious how well it will perform on the sparse data that I have
-	\item Smoothing techniques like filtering - sometimes noise reduction allows one to see the forest through the trees - I'm hopeful that something like ASAP or DFT will allow the noise that is present in a time series to be reduced for financial data enough to make robust predictions. 
-	\item Sequence processing such as a hidden Markov model may be very helpful as well and it is something that I would love to try
+	\item Pick an algorithm of choice
+	\item Pick a starting point $ t_b $ and a size $ l $ of the training data
+	\item Let $ T $, the training data, be the spending from $ t_b $ to $ t_b + l $
+	\item Train, using the raw data with zeros, the algorithm on $ T $
+	\item Let $ V $ be the sum of the data from $ t_b + l + 1 $ to $ t_b + l + 30 $. This is the actual amount of spending
+	\item Run the predictions forward 30 days recursively using the new estimates to inform the next prediction. Let $ \hat{V} $ be the sum of thirty days worth of predictions
+	\item Predict $ \hat{V} $ using the trained algorithm and let the error of the observation be $ \hat{V} - V $
+	\item Repeat this process for a large number of choices for $ t_b $ and $ l $ and for every algorithm under consideration
 \end{enumerate}
 
-
-Some of the methods that I plan to try for the metric piece of the assignment are as follows:
+For the autoregressive models, the algorithm was as follows:
 \begin{enumerate}
-	\item Monthly Spending Index - at any given time, how much do I expect to spend in the next 30 days? This metric could be updated in real time to show an index of when I have been overspending or underspending
-	\item Bullet charts to show good-caution-danger zone estimates for certain categories. Popularized by Stephen Few, these are great little charts and are highly dense information wise and can be very quickly made into a dashboard {\color{blue} \url{https://en.wikipedia.org/wiki/Bullet_graph}}
-	\item Pain Index - Given the conjoint information from the beginning assessment, how likely are you to experience pain in the form of under-budgeting within the next month? Tracking this over time will let someone know how close they typically are to their goal and provide course correction in the event that they are unaware that they are not on track. 
+	\item Pick an algorithm of choice
+	\item Pick a starting point $ t_b $ and a size $ l $ of the training data
+	\item Let $ T $, the training data, be the spending from $ t_b $ to $ t_b + l $
+	\item Transform $ T $ into an autoregressive matrix with 20 lags as the covariates That is, the first line is: $ T_{t_b + 21} = f(T_{t_b + 20}, T_{t_b + 19}, \ldots , T_{t_b + 1}) $. The second line begins with $ T_{t_b + 22} $ and is predicted with $ T_{t_b + 21} \rightarrow T_{t_b + 2} $ and so on and so forth
+	\item Train, using the autoregressive data, the algorithm on $ T $
+	\item Let $ V $ be the sum of the data from $ t_b + l + 1 $ to $ t_b + l + 30 $. This is the actual amount of spending
+	\item Run the predictions forward 30 days recursively using the new estimates to inform the next prediction. Let $ \hat{V} $ be the sum of thirty days worth of predictions
+	\item Predict $ \hat{V} $ using the trained algorithm and let the error of the observation be $ \hat{V} - V $
+	\item Repeat this process for a large number of choices for $ t_b $ and $ l $ and for every algorithm under consideration
 \end{enumerate}
 
-\begin{updatematerial}
-	I plan to follow the methods plan that I have suggested above to identify which of the methods it the best at predicting financial data in the future. I would like to see how different methods compare and if I can gather anything out of the various methods by gaining predictive power or reducing the variance of the estimates. 
-\end{updatematerial}
+For the autoregressive models, the algorithm was as follows:
+\begin{enumerate}
+	\item Pick an algorithm of choice
+	\item Pick a starting point $ t_b $ and a size $ l $ of the training data
+	\item Let $ T $, the training data, be the spending from $ t_b $ to $ t_b + l $
+	\item Transform $ T $ into a \yinyang sequence using the process described in the \yinyang data procedure
+	\item Train, using the \yinyang procedure and a Markov assumption on transitions, the algorithm on $ T $
+	\item Let $ V $ be the sum of the data from $ t_b + l + 1 $ to $ t_b + l + 30 $. This is the actual amount of spending
+	\item Compute predictions on the \yinyang sequence forward until the number of days covered (tallied though the number of days with zeros) is greater than or equal to 30.
+	\item Predict $ \hat{V} $ using the trained algorithm and let the error of the observation be $ \hat{V} - V $
+	\item Repeat this process for a large number of choices for $ t_b $ and $ l $ and for every algorithm under consideration
+\end{enumerate}
 
+Using all three of these data processing methods, I generated the final \bplots for the report which then can be used to access the error. 
 
 \section{Evaluation and Results} \label{sec:results}
 
-From above: My evaluation metrics will include asymmetric L1 loss (the losses resulting from overprediction and a shortfall of money are far less severe than the losses resulting from foregone investment interest resulting from under budgeting and capital surplus). I want to run a conjoint analysis to determine what loss I can create that best aligns with how I experience loss. For this, I will place a large number of scenarios in front of myself and I want to evaluate which I would prefer in a given circumstance. For example, would I prefer to over budget by \$100 or would I prefer to under-budget vacation by \$80 and not be able to go out to dinner on the last night? Answers to questions such as these will be very useful in determining how I should assign loss measures and to which categories of my budget I should be the most focused on. 
+\newcommand{\lookback}{\textit{Look-back Averaging}\xspace}
 
-In math, one such metric would be as follows (let $R$ be the realized amount of spending and $B$ be the amount Budgeted):
-\begin{align}
-Loss(R, B) &= w_1 \max(R - B, 0) \nonumber \\
-&+ w_2 \max(B - R, 0)
-\end{align}
+\subsection{Naive Models}
 
-Where, if $realized > budgeted$, then we have overspent and $w_1$ will drive our loss and the converse holds true for $w_2$. Given our discussion from before, it makes sense that $w_1 \geq w_2$ since the pain of having a shortfall, for most, will be greater than the gain that one experiences from optimizing their free cash flow. However, when I run the conjoint analysis, I hope to find out if this is really the case. 
+Before a presentation of errors for more advance models is presented, a more simplistic baseline first has to be established using both ARIMA models and \lookback. ARIMA models are common in time series analysis, and so they are a natural place to start. Look-back averaging uses the average of the last $k$ points linearly scaled as the best prediction of the look-forward average. The \bplots of both methods are presented in Figure \ref{fig:08nullerrors}.
 
-The baseline metrics that I will use are both very common in the space:
+The top two plots show the errors of the methods without averaging, and the bottom shows them averaged for each of the training data sizes. We can see that for low amounts of training data, both ARIMA and \lookback both have almost unbiased error. This somewhat makes sense since spending tends to have a mean structure that doesn't vary too quickly with time. However, if we look at the top plots, we can see that the error for small predictions, while unbiased on average, are sometimes as large as 600. Since the scale of the spending is often around \$300-\$500 a month, this level of error is unacceptable and other methods will aim to reduce the variance of the errors as well as keeping the unbiased property of these algorithms at small sample sizes.
+
+An interesting trend with the ARIMA and \lookback data is the auto-correlation that training sizes from 400-800 exhibit. Since they are both using expectations, it appears to be the case that having too much information to train on (e.g. taking a long term average instead of a short term average for prediction) tends to actually bias the estimates up which causes the algorithms to be unbiased overall as they gain more training data. This was surprising for ARIMA as I expected it to pick up on this trend, but it did not. The moral of the story with naive methods is that less may be more in training data, but the cost of this is excessive variance. 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\linewidth]{../figures/08_null_errors}
+	\caption{Null Model Errors}
+	\label{fig:08nullerrors}
+\end{figure}
+	
+\subsection{Autoregressive Methods}
+
+When we run use the autoregressive modeling setup, the modeling problem becomes a prediction problem where the lags are now the covariates. I trained six models and then recorded their error for each training size. The raw errors can be seen in Figure \ref{fig:arerrorswzeros} and the means of the errors can be seen in Figure \ref{fig:arerrorswzerosmeans}.
+
+Each of the models were trained using lags of sized 20 for the data, and their results are as follows:
+\begin{description}
+	\item[Decision Trees] Decision trees were fit on the autoregressive data. Out of the various methods, the decision trees had the largest true error of over \$1,500, and this variance makes them unpractical for use. The algorithm was downwards biased from 0-600 training size and then upward bias after this range. 
+	\item[GLMs] Generalized Linear Models were relatively unbiased from training sizes of 0-400, but were upward bias past that training size. Out of the models considered, they were the only model that was largely unbiased on average for a majority of the training sizes, which indicates that they are able to outperform the other models considered in the autoregressive context for this data
+	\item[Random Forests] Random Forest were trained on the autoregressive data. While the variance is not as large as the decision trees, they systemically were upwards bias, and for no size of training data were they ever unbiased estimators of next months spending
+	\item[Support Vector Machines] Using the Linear, Polynomial, and Radial Kernels for SVM on the autoregressive data yielded largely similar results. The SVM was downwards biased for all input sizes, and this performed the worst out of all of the models considered for autoregressive prediction. 
+\end{description}
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\linewidth]{../figures/ar_errors_w_zeros}
+	\caption{Autoregressive errors for each training size}
+	\label{fig:arerrorswzeros}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\linewidth]{../figures/ar_errors_w_zeros_means}
+	\caption{Autoregressive mean errors for each training sequence size}
+	\label{fig:arerrorswzerosmeans}
+\end{figure}
+
+
+
+
+\subsection{Yin-Yang Regression}
+\yinyang data prediction, as described in Section \ref{sec:methodology}, amounts to a Multivariate regression problem that aims to predict, given a spending amount and the time between this and their last expenditure, how long it will be until they spend money and what that amount will be. 
+
+In this prediction, we are aiming to find a function $f$ such that 
+\begin{align*}
+f(x_1, x_2) \rightarrow (y_1, y_2)
+\end{align*}
+However, most algorithms only output one value for their predictions. I combated this by one of the following two methods:
 \begin{enumerate}
-	\item Running (or Simple) Average - Simple means and measures of center are the most common implementation for many of the prediction metrics from month to month. This is the method that is used in my budgeting program currently, and its inadequacy is the main reason why I thought of this project. 
-	\item ARIMA - this is probably the most sophisticated model that most anyone who works with basic financial data uses since it is widely implemented and this is usually the most advanced (and only) mention of time series in most business schools\footnote{During my time in Ross, this was only mentioned in an advanced analytics course at the 400 level and was a highly non-standard part of the curriculum. During my time in banking, most forecasting was done at a far more micro level using correlations and so large scale time series analysis were left to the research economists who used mean expectation algorithms for stability.}. 
+	\item I estimated the spending amount and the count amount independently using past data and then used this for the next prediction value. This method works well, but it does not take into account the fact that often there is a correlation between how much is spent and how long it is in between visits. For example, imagine that you spend a lot on groceries. This large amount spent will likely last longer. This means that there is a corresponding positive correlation between amount spent and the number of days that will occur before the next time that groceries are purchased
+	\item To decouple the correlation between spending and the number of zeros following it, I ran PCA in the second method to attempt to decouple the correlation between the variables, predicted using the scores in the PCA space, and then re-transformed them back onto the original coordinates for predictions
 \end{enumerate}
 
-\begin{updatematerial}
-	Looking at the Baseline models, there is still lots of improvement to do to determine how the models will perform, but with an $L_1$ loss all above 150, I think that the unweighted mean and the ARIMA models are going to be good baselines to begin with. I have carried out the following baseline models with their results:
-	\begin{itemize}
-		\item Basic lagging mean: This method used the running equal-weight mean with lag periods 1:15. If $lookback = 0$, this is equivalent to using the previous month's value to predict this months value, and a lag of fifteen would use the average from the previous fifteen months to predict this month. The error is printed out in terms of the average $L_1$ error that each method produced. See figure  \ref{fig:laggedmeanpredictionresults} for the visualization of the errors
-		% latex table generated in R 3.4.3 by xtable 1.8-2 package
-		% Mon Nov 12 22:16:16 2018
-		\begin{table}[ht]
-			\centering
-			\begin{tabular}{rlr}
-				\hline
-				& Type & error \\ 
-				\hline
-				1 & Mean(lookback = 0) & 225.68 \\ 
-				2 & Mean(lookback = 1) & 203.28 \\ 
-				3 & Mean(lookback = 2) & 183.10 \\ 
-				4 & Mean(lookback = 3) & 191.36 \\ 
-				5 & Mean(lookback = 4) & 184.09 \\ 
-				6 & Mean(lookback = 5) & 170.71 \\ 
-				7 & Mean(lookback = 6) & 168.43 \\ 
-				8 & Mean(lookback = 7) & 160.13 \\ 
-				9 & Mean(lookback = 8) & 157.74 \\ 
-				10 & Mean(lookback = 9) & 160.21 \\ 
-				11 & Mean(lookback = 10) & 160.86 \\ 
-				12 & Mean(lookback = 11) & 159.83 \\ 
-				13 & Mean(lookback = 12) & 159.31 \\ 
-				14 & Mean(lookback = 13) & 159.76 \\ 
-				15 & Mean(lookback = 14) & 157.38 \\ 
-				16 & Mean(lookback = 15) & 158.63 \\ 
-				\hline
-			\end{tabular}
-		\end{table}
-		We can see that the highest lags had the lowest errors
-		\item ARIMA Modeling: The ARIMA error is expressed in Figure \ref{fig:arimamodelingerrorinit}. We can see that the simplest model (one without a linear trend or seasonality)  has the lowest error on the chosen problem
-	\end{itemize}
-	Expansions on this, to be implemented shortly, include different time period aggregations (maybe weekly) or to use other methods of predicting the outflows in a month (Monte Carlo or other ensemble methods to build up months one day at a time. )
-\end{updatematerial}
+If we look at Figure \ref{fig:07yinyangmultiple}, we can see that the GLM method was upwards biased for every amount of training data in the set. This also applies to the PCA transformed \yinyang data. This should make sense since PCA is essentially computing a linear transform of the data, and the GLM is taking a linear function of the inputs to predict the outputs so we should expect similar results. 
+
 \begin{figure}
 	\centering
-	\includegraphics[width=1\linewidth]{../figures/Lagged_Mean_Prediction_Results}
-	\caption{Average $L_1$ error for the lagged mean models}
-	\label{fig:laggedmeanpredictionresults}
+	\includegraphics[width=1\linewidth]{../figures/07_yin_yang_multiple}
+	\caption{Errors in prediction using the \yinyang style of prediction}
+	\label{fig:07yinyangmultiple}
 \end{figure}
+
+The random forest is relatively unbiased, on the raw \yinyang data, from zero to almost 400 training points, while the PCA transformed data is systematically biased upwards.  The untransformed data predictions, being unbiased, is a surprising find. It shows that for up to almost a year of transactional data, the predictions are unbiased on average. While some of the averages exhibit autocorrelation, this was the first breakthrough in prediction with this data that I had and it was an indication that the prediction methods that I was using could be improved on.
+
+The SVM algorithm is biased in both the raw and the transformed data. Like in the autocorrelation data, the SVM algorithm was not good in predicting the next value in the \yinyang series, and this was evident in the amount of bias that the algorithm exhibits when we look at the \bplots.  
+
+\subsection{Most Promising Models}
+
+After exploring a variety of combination of models, there were two models that outperformed compared to their peers. The first model was based on the Prophet Time Series Prediction algorithm from Facebook, and the second was the \yinyang prediction method using Random Forests. We can see the results of the best methods in Figure \ref{fig:mostpromisingmethods} . 
+
+
 \begin{figure}
 	\centering
-	\includegraphics[width=1\linewidth]{../figures/Arima_Modeling_Error_Init}
-	\caption{Anova Error for R Present Models}
-	\label{fig:arimamodelingerrorinit}
+	\includegraphics[width=1\linewidth]{../figures/most_promising_methods}
+	\caption{\bplots of the two most promising methods. On the left is the \bplots of Facebook's prediction algorithm and the plot on the right is the \bplots of the \yinyang prediction algorithm }
+	\label{fig:mostpromisingmethods}
 \end{figure}
 
 
+Facebook's Prophet algorithm is a Bayesian time series algorithm that accounts for daily or weekly seasonality, missing observations, outliers, and linear and non-linear trends. While I expected it to have a good performance in general, I expected the algorithm to struggle with the high amount of zeros in the dataset. However, as shown in the \bplots, we can see that it is a very effective algorithm, on average, for predicting the next months spending in an unbiased manner on average. 
+
+The \yinyang prediction using Random Forests is also surprising in its performance. While it performs far better than Prophet on small training samples, it appears that it has more systemic bias than Prophet on average. 
+
+In general, I would recommend using the \yinyang Random Forest strategy if the size of the training set is small and I would recommend using the Prophet strategy if the number of points to train on exceeds 100. With both algorithms, it is the case that they become biased with more training data. I think this is an artifact of the outliers in the data and these outliers can, in the short run, be averaged out using a small sample size. But, as the number of training points increases, we can see that the outliers bias the predictions upwards which results in the upward characteristic tails that we see in almost all of the \bplots in this paper. 
 
 
-%This section provides an overview of how you evaluated your method on the data.  What methods did you compare against?  How successful were you?  Describe the exact evaluation setup and what kinds of
-%steps were taken.
 
-%You should also clearly define some baselines to compare your system against.
-%One baseline should be random performance.  A second baseline should be
-%something reasonable that doesn't require much knowledge or learning.  For example, if you're doing a recommendation engine, always choosing the average rating is a useful baseline.
-
-%\textbf{ \color{red} For the proposal, you should propose a very simple baseline to compare your model against and a description of the evaluation metric(s) you intent to use.  You \textit{must} include this baseline description for credit, as it is critical to  proposing an evaluatable data mining task.}
-
-%
-%\begin{figure}
-%\centering
-%% Note: text width is the width of both columns
-%%\includegraphics[width=0.38\textwidth]{examplefigure.pdf}
-%\caption{Eventually, you'll have cool figures to show here.}
-%\end{figure}
 
 \section{Discussion}
 
+For an end user, the largest consideration now, since we have discovered unbiased prediction methods, is to lessen the variance of the predictions. Since this paper focused predominately on the unbiased aspect of the \preprob, I think that the paper succeeded in its aim to produced unbiased estimators, the variance of the estimates is one of the aspects for an end user that I would like to control. 
 
+The performance of the algorithms was surprising to me. I was not expecting to find algorithms that were unbiased over large domains of training data size, and I was not expecting an algorithm to work on the raw data like Prophet. Yet, both of these things happened, and it was a cause for celebration that perhaps personal financial predictions are possible despite the various challenges with the data. 
 
-%The discussion section is where you start to unpack the results for the reader
-%to help them understand what was learned.  You may not have many results at the
-%moment (but you should have some!) so you can discuss here what has gone wrong
-%and right in your current setup.  For example, maybe you realized you needed
-%more data, or maybe you realized that the SVD was not helping your analysis.
-%The discussion should point the way to what work will be done next.
+The best methods strongly outperformed the baselines in the sense that they are largely unbiased and the variance of their estimates is less. However, the variance of the errors, for the average user, is still too large to be useful (the average error in prediction is still around 30\% which indicates that most estimates would still be difficult to hedge uncertainty with). 
 
+I purposely did not choose to compute a metric on the performance outside of \bplots so that a user of the data would have to see the data as a whole and not as a set of summary statistics. The location and the trends in the bias, as as function of the number of training points, is critical to see in its totality without summarizing it down to numbers that do not portray these patterns. For this reason, I would recommend that a user of these prediction algorithms choose their algorithm of choice and use \bplots to decide between algorithm alternatives that suit their amount of training data and tolerances for error. 
 
-%\textbf{ \color{red} You can leave this section blank. }
+\section{Things Left Undone}
 
-\begin{updatematerial}
-	With an average error for the simple mean calculation of over 150 and over 160 for the best ARIMA model, the baseline performs rather poorly but this is something that I think that could be useful for measuring the success of future methods. In short, if you ran this model, and asked it what you would spend in the next month, it would give you an estimate with an average $L_1$ error of \$150 which tells us that if it predicts \$400 in spending on food, that the error bars are from \$100 to \$700 which make the estimates next to useless. 
-	
-	This is a good baseline to begin off of, because it tells us that the mean function of the past data is not the most important thing in predicting this data on a pure-monthly basis, and this tells us that methods will inherently need to work with more granular aggregations (which are possible since I have the daily data) in order to gain useful insights into the modeling of the expected value. 
-\end{updatematerial}
-
-
-
-
+Below is a list of the methods that are in consideration still for future development:
+\begin{description}
+	\item[Hidden Markov Models] I wanted to implement a fully Bayesian HMM that would be able to determine the number of cluster automatically and predict on the time series. However, due to the difficulty in estimating the joint posterior of an HMM using the forward algorithm in determining the number of clusters, and the fitting issues, I abandoned this approach early but this is something that I would like to visit in the future for estimation - especially for the \yinyang prediction system
+	\item[Multivariate Regression] For the \yinyang Regression Problem, this is the theoretically correct field from which to pull the regression techniques from. I only found out about these methods a week ago from a conversation with a professor, and so this is something that I would like to work with in the \yinyang context in the near future to see if it can outperform the other methods. 
+	\item[Neural Nets and LTSM] I wanted to use deep learning in some form, but I ran out of time in implementing them fully. My initial trails were so terrible in performance that they were scrapped since the amount of data is so small in general and the sparsity seemed to be creating a lot of problems for prediction. 
+	\item[Different Loss Functions] I wanted to use different loss functions instead of just $ L_1 $ loss due to the fact that it is often far more detrimental in these predictions to under predict then to over-predict someones financial expenditures. As a result, an asymmetric loss function would have been a great addition and this is something that I want to look at in the future
+	\item[Stacked Models] To reduce the variance of the estimates, I want to build up a stacked model that will be able to predict using the outputs of several models. The only issue that I see with this approach is that each of the models tends to have errors that are correlated heavily and so there may be very little benefit to a stacked approach. But I would like to consider this in the future. 
+	\item[Visulization Metrics] An initial hope of the project would be to create a variety of charts and indicators that would be useful to humans - much like a dashboard that could tell someone about their financial health. Due to time, this was not attempted. However, I, from banking, have been increasingly interested in using Bullet Charts from Stephen Few to visualize data. I have implemented these for my personal data, but I was not able to polish them enough to make the final report. I also wanted to implement a Monthly Spending index, but I was not able to conceptualize how to display it such that it would be useful to the user. This is something that I would like to devote some time to since I think it would be useful to an ordinary user. 
+	\item[More "Cooks in the Kitchen"] Discovery is hard. It would have been amazing to have a few more "cooks in the kitchen" to bounce ideas off of and test out other prediction methods. I am happy that I can say I have novel methods for prediction using the \yinyang predictions and all methods were discovered using trail and error, but it would have been great to have another coder to help implement the dozen or so coding files that were utilized in this project to get the graphics, data, discovery, and predictions to work. 
+\end{description}
 
 \section{Work Plan}
 
-My plan for this project roughly follows the following guideline:
-\begin{enumerate}
-	\item Gather the data from my budgeting program. I already have a workflow for this
-	\begin{updatematerial}
-		This has been completed
-	\end{updatematerial}
-	\item Determine which categories are worth modeling - I'm looking at any variable expenses as being the most useful thing to model. Fixed expenses like rent are contractual and can be modeled statically
-	\begin{updatematerial}
-		I have decided to spend most of my time modeling categories like ``Spending money'' which is a catch-all for random things like house supplies and school materials and ``Food and Drinks'' which includes every single meal that I have eaten out that does not include the meals that I make with my own groceries as well as ``Groceries'' which is my tracking of my grocery expenditures.
-	\end{updatematerial}
-	\item Begin building look-ahead prediction models and comparing them. 
-	\begin{enumerate}
-		\item Start with base models. Assess prediction accuracy
-		\begin{updatematerial}
-			This has been implemented as of this writing using the baseline for the means as well as the ARIMA model
-		\end{updatematerial}
-		\item Work up to more advanced models
-		\item Try to combine results using stacking to improve prediction error 
-		\begin{updatematerial}
-			I don't think that this step will happen due to the modeling complexity already
-		\end{updatematerial}
-		\item Reduce data-size as much as possible to see how much data we need for ``good enough'' accuracy
-		\begin{updatematerial}
-			This is an implicit part of the error analysis and will probably be included as a result
-		\end{updatematerial}
-	\end{enumerate}
-	\item Begin looking at metrics that assess the health of a persons spending as a means of visualizing progress. 
-		\begin{updatematerial}
-			This is the part of the project that is the most TBD due to the fact that the timing is going to be quite intensive to model out all of the other parts and get the performance of the models where I would like to. This, I think, is the most useful part of the project though for my purposes and it is something that I would like to focus on if I get the time. 
-		\end{updatematerial}
-	\begin{enumerate}
-		\item Track financial ratios and see if they are ``useful''
-		\item Look at smoothing procedures to see if they add information
-		\item Look at simulation based visualizations to see if they add anything interesting
-	\end{enumerate}
-\end{enumerate}
-
-%\textbf{ \color{red}  Normally, you would have a conclusion to end the work, but as this is a project proposal,
-%you'll end with a plan for how you'll accomplish your project.  We hope this section can help you think at a high-level about which tasks are necessary to get to the point where you have a working model.  Of course, plans are often made and then changed when new information or challenges emerge, so we won't hold you you to this.  However, the act of writing a plan can greatly help you figure out how think about the process and, in general, projects that are proposed with more concrete work plans tend to be more successful.
-%}
-
-%\section{Multi-person Team Justification}
-%
-%\textbf{ \color{red} If you have more than one person on your project, you should justify why the work requires the number of people you have.  In addition, you should provide a concrete explanation of what each team member is expected to do, keeping in mind that all team members need to be doing \textit{some} kind of data mining for the project.}
+I was able to hit most, if not all, of my prediction goals in creating an unbiased predictor for my data. However, the second part of the project, concerning visualization methods, was, due to time constraints, not able to be finished Arguably, while the prediction was a an accomplishment due to the difficulty of the data, the visualization piece was as important or more important than the prediction aspect since it would be the part that a user would interact with the most. Because of this, I am sad that I did not have more time to include the visualization aspect in this report. However, this is only the start of what is likely to be a multi-year project, and I am excited to explore more on the visualization side as the project progresses. 
 
 \section*{Acknowledgments}
 
-My brother, an accountant, and I as well as several friends have discussed beginning a financial advisory firm focusing on tax arbitrage and investing advice based on tailored risk analysis. My background in finance and financial modeling heavily informs my views of financial predictions in general, and I know how noisy the real world is with this kind of data. Having always been interested in personal finance, this aspect of modeling out my finances is something I have attempted in the past using various simulation based methods, but I have never taken a deep dive into quantifying error nor coming up with a system for prediction and analysis. I hope to expand this for the ambitions of a past self and for the benefit of a potential business
+I would like to thank my brother, Cameron Kurzeja, as well as my time working in investment banking and the creators of YNAB, my budgeting software, for creating the perfect storm that inspired this project. I aim to one day small-size financial predictions into a business model, and without the coming together of several ideas at the right moment, the questions and thoughts behind this project would not have been possible. 
 
-%If you got help from anyone or had substantive discussions, please acknowledge
-%those people here and describe how they contributed.  The work you do for your
-%project should be entirely your own.
+\begin{thebibliography}{9}
 
-% include your own bib file like this:
-%\bibliography{references}
-%\bibliographystyle{acl_natbib}
+	
+	\bibitem{SVMFinance}
+	Kim, Kyoung-jae. “Financial Time Series Forecasting Using Support Vector Machines.” NeuroImage, Academic Press, 13 May 2003, www.sciencedirect.com/science/article/pii/
+	S0925231203003722\#SEC3.
+	
+	\bibitem{LongTail}
+	McNeil, Alexander. “Estimation of Tail-Related Risk Measures for Heteroscedastic Financial Time Series: an Extreme Value Approach.” NeuroImage, Academic Press, 1 Dec. 2000, www.sciencedirect.com/science/article/pii/
+	S0927539800000128.
+	
+	\bibitem{Fbook}
+	“Prophet: Forecasting at Scale.” Facebook Research, research.fb.com/prophet-forecasting-at-scale/.
+\end{thebibliography}
 
-%\textbf{\color{red} Note that you must cite all your references, e.g., \cite{wang2014studentlife}}
-
-%\appendix
-
-%\begin{thebibliography}{9}
-%	
-%	\bibitem{BNP} 
-%	BNP Paribas - During my time at BNP Paribas in New York, this was often a statistic that was used in client meetings and for presentations. 
-%	
-%	\bibitem{SVMFinance}
-%	Kim, Kyoung-jae. “Financial Time Series Forecasting Using Support Vector Machines.” NeuroImage, Academic Press, 13 May 2003, www.sciencedirect.com/science/article/pii/S0925231203003722\#SEC3.
-%	
-%	\bibitem{LongTail}
-%	McNeil, Alexander. “Estimation of Tail-Related Risk Measures for Heteroscedastic Financial Time Series: an Extreme Value Approach.” NeuroImage, Academic Press, 1 Dec. 2000, www.sciencedirect.com/science/article/pii/S0927539800000128.
-%	
-%\end{thebibliography}
-
-
-%\section{Supplemental Material}
-%\label{sec:supplemental}
-%
-%If you want to put longer examples of data and code, put it here in the appendix.  
 
 \end{document}
