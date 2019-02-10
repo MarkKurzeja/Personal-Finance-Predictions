@@ -13,7 +13,10 @@
 
 \documentclass[11pt,a4paper]{article}
 \usepackage[hyperref]{naaclhlt2018}
+%\usepackage[square,sort,comma,numbers]{natbib}
 \usepackage{kpfonts}
+%\usepackage{opensans}
+%\usepackage{sourcesanspro}
 %\usepackage[T1]{fontenc}
 %\usepackage{PTSans}
 %\usepackage{libertine}
@@ -21,6 +24,12 @@
 \renewcommand{\descriptionlabel}[1]{\hspace{\labelsep}\textsc{#1}}
 %\renewcommand{\familydefault}{\sfdefault}
 \usepackage{latexsym}
+\usepackage{xcolor}
+\hypersetup{
+	colorlinks,
+	citecolor=black,
+	linkcolor=black,
+	urlcolor=black}
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -30,18 +39,13 @@
 \usepackage{graphicx}
 \usepackage{fullpage}
 \usepackage{xspace}
-\usepackage{url}
+\usepackage{url} 
 \usepackage{color}
 \definecolor{harvardcrimson}{HTML}{A41034}
-%\definecolor{harvardgrey}{HTML}{B6B6B6}
-%\definecolor{harvarddarkgrey}{HTML}{808285}
+\definecolor{harvardgrey}{HTML}{B6B6B6}
+\definecolor{harvarddarkgrey}{HTML}{808285}
 \definecolor{harvardblue}{HTML}{0D667F}
-\newenvironment{updatematerial}{
-\color{blue}
-}{
-
-}
-\aclfinalcopy % Uncomment this line for the final submission
+%\aclfinalcopy % Uncomment this line for the final submission
 %\def\aclpaperid{***} %  Enter the acl Paper ID here
 
 %\setlength\titlebox{5cm}
@@ -56,9 +60,9 @@
 
 
 
-\newcommand\BibTeX{B{\sc ib}\TeX}
+%\newcommand\BibTeX{B{\sc ib}\TeX}
 
-\title{\textsc{Using \beer on Personal Financial Data}  \\ {\small Version 1.0}}
+\title{\textsc{Using \beer on Personal Financial Data}  \\ {\small \color{harvarddarkgrey} Version 1.618}}
 
 \author{Mark Kurzeja}
 
@@ -82,11 +86,12 @@ Forecasting the future is hard. Forecasting ones financial future can be even ha
 Imagine you and I are out for drinks. We go to the bar, and begin talking about predicting the future.  Annoyed with my optimism about prediction, you say to put my money where my mouth is, and you offer me the following bet:
 
 \begin{quote}
-	\it \color{harvardcrimson}
-	``Pull out a piece of paper. Write down the exact dollar amount that you think you’re going to spend this month on anything you like. If you're right, within \$100, I'll give you \$1,000. Otherwise, you will owe me \$1,000'' 
+	\textit{ \color{harvardcrimson}
+	``Pull out a piece of paper. Write down the exact dollar amount that you think you're going to spend this month on anything you like. If you're right, within \$100, I'll give you \$1,000. Otherwise, you will owe me \$1,000''
+	} 
 \end{quote} 
 
-Do you think I should take the bet? If the payoffs or tolerance were different should I take the bet? How would this change my spending in the short term? I’m at a bar, after all. Should I order a cheaper Busch Light instead of my favorite beer, a Blue Moon, to avoid the chance of going over? Would little changes like that make a difference? We will talk about the solution to this problem, in an optimal setting, in Section \ref{sec:problem} and exploring methods for prediction in Section \ref{sec:methodology} and Section \ref{sec:results}.
+Do you think I should take the bet? If the payoffs or tolerance were different should I take the bet? How would this change my spending in the short term? I'm at a bar, after all. Should I order a cheaper Busch Light instead of my favorite beer, a Blue Moon, to avoid the chance of going over? Would little changes like that make a difference? We will talk about the solution to this problem, in an optimal setting, in Section \ref{sec:problem} and exploring methods for prediction in Section \ref{sec:methodology} and Section \ref{sec:results}.
 
 Wouldn't it be nice to predict spending in advance so that you don't have to wonder? Whether its to lessen the surprise of the unpredictable, or to decide what beer you're able to afford for the night, \beer aims to inform personal financial decisions in the short term for long term success. 
 
@@ -113,20 +118,21 @@ This problem has several nuances, and it is best expressed in terms of an exampl
 	Imagine David has \$2,000 dollars that he can spend in the month of January on all of his expenses. He sets aside \$800 for rent, a contractual payment, leaving \$1,200 left for variable spending. He has already spent \$200 in the first five days of the month, and so he has 26 more days until his budget resets. What is the probability that he spends only \$1 for the rest of the month? How about \$100? How about \$1,000 (he breaks even)? How about \$2,000 (he grossly overspends)?
 \end{quote}
 
-Using this framework, most of the problems in money risk management can be framed. In this case, the time frame, $T_d$ is 26 days and $T_b = 1/5/2018$. David has $D = \$2,000$ to spend at the beginning of the month, has spent $C = \$1,000$ within the first five days, and so he has $D - C = \$1,000$ left to spend for the remaining $T$ days. 
+Using this framework, most of the problems in money risk management can be framed. In this case, the time frame, $T_d$ is 26 days and $T_b = 1/5/2018$. David has $D = \$2,000$ to spend at the beginning of the month, has spent $C = \$1,000$ within the first five days, and so he has $D - C = \$1,000$ left to spend for the remaining $T_d$ days. 
 
 More mathematically, we are trying to approximate the function:
 \begin{align*}
 P(X | T, D, C)
 \end{align*} 
 
+\newcommand{\custompartial}{\ensuremath{\hspace{-3mm}\partial x \hspace{2mm}}}
 The probability of overspending, for example, is now the probability of spending greater than $D - C$ dollars in the next $T_d$ days which can be expressed as:
 \begin{align*}
-\int_{D-C}^{\infty} P(X | T_b, T_d, D, C) \,\partial x
+\int\limits_{D-C}^{\infty} \hspace{1mm} \custompartial P(X | T_b, T_d, D, C) 
 \end{align*}
 and the probability of spending within \$100 of your goal, as we posited as a hypothetical bet in Section \ref{sec:introduction}, can now be expressed as: 
 \begin{align*}
-\int_{D - 100}^{D + 100} P(X | T_b, T_d, D, C) \,\partial x
+\int\limits_{D - 100}^{D + 100} \custompartial P(X | T_b, T_d, D, C) 
 \end{align*}
 Using the math of the \budgetprob, one could figure out what the optimal decision is to the hypothetical bet in Section \ref{sec:introduction} is when combined with a loss function. 
 
@@ -290,7 +296,7 @@ For the autoregressive models, the algorithm was as follows:
 	\item Pick an algorithm of choice
 	\item Pick a starting point $ t_b $ and a size $ l $ of the training data
 	\item Let $ T $, the training data, be the spending from $ t_b $ to $ t_b + l $
-	\item Transform $ T $ into an autoregressive matrix with 20 lags as the covariates That is, the first line is: $ T_{t_b + 21} = f(T_{t_b + 20}, T_{t_b + 19}, \ldots , T_{t_b + 1}) $. The second line begins with $ T_{t_b + 22} $ and is predicted with $ T_{t_b + 21} \rightarrow T_{t_b + 2} $ and so on and so forth
+	\item Transform $ T $ into an autoregressive matrix with 20 lags as the covariates That is, the first line is: $$ T_{t_b + 21} = f(T_{t_b + 20}, T_{t_b + 19}, \ldots , T_{t_b + 1}) $$ The second line begins with $ T_{t_b + 22} $ and is predicted with $ T_{t_b + 21} \rightarrow T_{t_b + 2} $ and so on and so forth
 	\item Train, using the autoregressive data, the algorithm on $ T $
 	\item Let $ V $ be the sum of the data from $ t_b + l + 1 $ to $ t_b + l + 30 $. This is the actual amount of spending
 	\item Run the predictions forward 30 days recursively using the new estimates to inform the next prediction. Let $ \hat{V} $ be the sum of thirty days worth of predictions
@@ -414,47 +420,58 @@ In general, I would recommend using the \yinyang Random Forest strategy if the s
 
 For an end user, the largest consideration now, since we have discovered unbiased prediction methods, is to lessen the variance of the predictions. Since this paper focused predominately on the unbiased aspect of the \preprob, I think that the paper succeeded in its aim to produced unbiased estimators, the variance of the estimates is one of the aspects for an end user that I would like to control. 
 
-The performance of the algorithms was surprising to me. I was not expecting to find algorithms that were unbiased over large domains of training data size, and I was not expecting an algorithm to work on the raw data like Prophet. Yet, both of these things happened, and it was a cause for celebration that perhaps personal financial predictions are possible despite the various challenges with the data. 
+The performance of the algorithms was surprising to me. I was not expecting to find algorithms that were unbiased over large domains of training data size, and I was not expecting an algorithm to work on the raw data like Prophet. Yet both of these things happened, and it was a cause for celebration that perhaps personal financial predictions are possible despite the various challenges with the data. 
 
 The best methods strongly outperformed the baselines in the sense that they are largely unbiased and the variance of their estimates is less. However, the variance of the errors, for the average user, is still too large to be useful (the average error in prediction is still around 30\% which indicates that most estimates would still be difficult to hedge uncertainty with). 
 
 I purposely did not choose to compute a metric on the performance outside of \bplots so that a user of the data would have to see the data as a whole and not as a set of summary statistics. The location and the trends in the bias, as as function of the number of training points, is critical to see in its totality without summarizing it down to numbers that do not portray these patterns. For this reason, I would recommend that a user of these prediction algorithms choose their algorithm of choice and use \bplots to decide between algorithm alternatives that suit their amount of training data and tolerances for error. 
 
+\missingfigure{Take here going up}
+
 \section{Things Left Undone}
 
 Below is a list of the methods that are in consideration still for future development:
 \begin{description}
-	\item[Hidden Markov Models] I wanted to implement a fully Bayesian HMM that would be able to determine the number of cluster automatically and predict on the time series. However, due to the difficulty in estimating the joint posterior of an HMM using the forward algorithm in determining the number of clusters, and the fitting issues, I abandoned this approach early but this is something that I would like to visit in the future for estimation - especially for the \yinyang prediction system
-	\item[Multivariate Regression] For the \yinyang Regression Problem, this is the theoretically correct field from which to pull the regression techniques from. I only found out about these methods a week ago from a conversation with a professor, and so this is something that I would like to work with in the \yinyang context in the near future to see if it can outperform the other methods. 
-	\item[Neural Nets and LTSM] I wanted to use deep learning in some form, but I ran out of time in implementing them fully. My initial trails were so terrible in performance that they were scrapped since the amount of data is so small in general and the sparsity seemed to be creating a lot of problems for prediction. 
-	\item[Different Loss Functions] I wanted to use different loss functions instead of just $ L_1 $ loss due to the fact that it is often far more detrimental in these predictions to under predict then to over-predict someones financial expenditures. As a result, an asymmetric loss function would have been a great addition and this is something that I want to look at in the future
-	\item[Stacked Models] To reduce the variance of the estimates, I want to build up a stacked model that will be able to predict using the outputs of several models. The only issue that I see with this approach is that each of the models tends to have errors that are correlated heavily and so there may be very little benefit to a stacked approach. But I would like to consider this in the future. 
-	\item[Visulization Metrics] An initial hope of the project would be to create a variety of charts and indicators that would be useful to humans - much like a dashboard that could tell someone about their financial health. Due to time, this was not attempted. However, I, from banking, have been increasingly interested in using Bullet Charts from Stephen Few to visualize data. I have implemented these for my personal data, but I was not able to polish them enough to make the final report. I also wanted to implement a Monthly Spending index, but I was not able to conceptualize how to display it such that it would be useful to the user. This is something that I would like to devote some time to since I think it would be useful to an ordinary user. 
-	\item[More "Cooks in the Kitchen"] Discovery is hard. It would have been amazing to have a few more "cooks in the kitchen" to bounce ideas off of and test out other prediction methods. I am happy that I can say I have novel methods for prediction using the \yinyang predictions and all methods were discovered using trail and error, but it would have been great to have another coder to help implement the dozen or so coding files that were utilized in this project to get the graphics, data, discovery, and predictions to work. 
+	\item[Hidden Markov Models] I wanted to implement a fully Bayesian HMM that could be useful for sequence prediction in the personal financial time series. However, due to the difficulty in estimating the joint posterior of an HMM using the forward algorithm in determining the number of clusters, I abandoned this approach. Bayesian HMMs are a method I would like to visit in the future for estimation - especially for the \yinyang prediction system
+	\item[Multivariate Regression] For the \yinyang Regression Problem, Multivariate Regression is something that I wanted to try as it allows us to predict both $ y_i $ and $ z_i $ jointly using the same algorithm. I only found out about these methods a week before the final submission of the project. In future research, I want to see if Multivariate Regression can outperform the marginal approach that did quite well with Random Forests. 
+	\item[Neural Nets and LTSM] I wanted to use deep learning in some form, but I ran out of time in implementing them fully. Initial trails performance were so terrible in performance they were scrapped. The amount of data is so small and exhibits such extreme sparsity that the deep learning models may be too difficult to train. 
+	\item[Loss Functions] I wanted to use different loss functions instead of just $ L_1 $ symmetric loss to judge the quality of the predictions of an algorithm. It is often more detrimental in these predictions to under-predict financial expenditures then to over-predict financial expenditures. An asymmetric loss function, that takes into account this asymmetric risk in prediction, would have been a great addition. Current candidates for loss functions are a multi-linear linear function such as 
+	\begin{align*}
+	L(x) = \begin{cases}
+	\left|x\right| & \text{ for }  x \leq 0 \\
+	m\left|x\right| & \text{ for }  x > 0, m > 1 
+	\end{cases}
+	\end{align*} which can be simplified as 
+	\begin{align*}
+	L(x) = \left(1 + m\mathbb{I}\left[x > 0\right]\right)\left|x\right|
+	\end{align*} or 
+	\begin{align*}
+	L(x) = \max\left\lbrace 0, x \right\rbrace
+	\end{align*} Asymmetric Pseudo Huber Loss\footnote{A good introduction to Huber Loss can be found here: \url{https://en.wikipedia.org/wiki/Huber_loss}} would also be a great alternative which is given by
+	\begin{align*}
+	\zeta &=  \left(1 + m\mathbb{I}\left[x > 0\right]\right) \\
+	L_\delta(x) &= \zeta \delta^2 \left(\sqrt{1 + \left(\frac{x}{\delta}\right)^2} - 1\right)
+	\end{align*}
+	where the loss is both convex (an advantage of $ L_2 $ loss) while not being as extreme for a loss far from zero. $ \delta $ is a parameter that tells the loss where the shift from highly convex to linear loss should occur.
+	\item[Stacked Models] To reduce the variance of the estimates, I want to build up a stacked model. A stacked model takes the output of several algorithms trained on the data and uses their predictions as covariates for its own prediction. I envision that the correlation of the errors could create problems for a stacked approach, but I would like to consider it nevertheless in the future.  
+	\item[Visualization Metrics] From the inception of the project, the goal was to create a series of visualizations that could be used to convey, to the average user, the current status of their financial future. Bullet Charts, from Stephen Few, are something that I wanted to experiment with to discern if the average user would find them useful for a dashboard view of their finances. I have implemented some visualizations for my personal data, but I was not able to polish them enough to make the final report. Among the visualizations I wanted to create, I wanted to implement a Monthly Spending index as well. This visualization I would like to devote some time to in the future. 
+	\item[More "Cooks in the Kitchen"] Discovery is hard. While sometimes multiple coders can run into each other, it would have been amazing to have a few more "cooks in the kitchen" to bounce ideas off of and test other prediction methods. While novel methods were presented and unbiased predictors were discovered, another coder to implement the dozen or so coding files, develop graphics, process data, and improve on predictions would have been a great help. 
 \end{description}
 
 \section{Work Plan}
 
-I was able to hit most, if not all, of my prediction goals in creating an unbiased predictor for my data. However, the second part of the project, concerning visualization methods, was, due to time constraints, not able to be finished Arguably, while the prediction was a an accomplishment due to the difficulty of the data, the visualization piece was as important or more important than the prediction aspect since it would be the part that a user would interact with the most. Because of this, I am sad that I did not have more time to include the visualization aspect in this report. However, this is only the start of what is likely to be a multi-year project, and I am excited to explore more on the visualization side as the project progresses. 
+I set out to create an unbiased predictor of monthly spending for personal financial data and to create visualization and metrics that a user could use that would be able to inform them on their financial health. With regards to the prediction task, I think that I achieved the first step of what I set out to do. Given the difficulty of the data, this was not a small task. 
+
+However, in terms of importance, I believe that the visualization aspect of the project was as important, or even more important, than the prediction component. Users interact with visualizations, and in terms of business purpose, the visualizations are something that I would like to continue to flesh out. This is only the start of what is likely to be a multi-year project, and I am excited to explore more on the visualization side as the project progresses. 
 
 \section*{Acknowledgments}
 
-I would like to thank my brother, Cameron Kurzeja, as well as my time working in investment banking and the creators of YNAB, my budgeting software, for creating the perfect storm that inspired this project. I aim to one day small-size financial predictions into a business model, and without the coming together of several ideas at the right moment, the questions and thoughts behind this project would not have been possible. 
+I would like to thank my brother, Cameron Kurzeja, my time working in banking, and the creators of YNAB\footnote{YNAB is an excellent budgeting software that made the data collection for this project possible}, for creating the perfect storm that inspired this project and made it possible. 
 
-\begin{thebibliography}{9}
 
-	
-	\bibitem{SVMFinance}
-	Kim, Kyoung-jae. “Financial Time Series Forecasting Using Support Vector Machines.” NeuroImage, Academic Press, 13 May 2003, www.sciencedirect.com/science/article/pii/
-	S0925231203003722\#SEC3.
-	
-	\bibitem{LongTail}
-	McNeil, Alexander. “Estimation of Tail-Related Risk Measures for Heteroscedastic Financial Time Series: an Extreme Value Approach.” NeuroImage, Academic Press, 1 Dec. 2000, www.sciencedirect.com/science/article/pii/
-	S0927539800000128.
-	
-	\bibitem{Fbook}
-	“Prophet: Forecasting at Scale.” Facebook Research, research.fb.com/prophet-forecasting-at-scale/.
-\end{thebibliography}
+% include your own bib file like this:
+\bibliography{references}
+\bibliographystyle{acl_natbib}
 
 
 \end{document}
