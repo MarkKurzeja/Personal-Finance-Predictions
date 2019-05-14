@@ -11,7 +11,8 @@ library(forcats)
 library(stringr)
 
 
-setwd("C:/Users/Mark/Dropbox/Graduate School/05) Courses/SI 671/Personal-Finance-Predictions")
+
+setwd("C:/Users/mtkur/Dropbox/Graduate School/05) Courses/SI 671/Personal-Finance-Predictions")
 
 data <- read.table("./data/data_20181112.txt", sep = "\t", comment.char = "#", fill = T, header = T)
 
@@ -58,6 +59,8 @@ for (lag in 1:30) {
   }) 
 }
 
+write.csv(ar_data_full[[30]], file = "./data/kinjal_ar_data_full.csv", row.names = F)
+
 # ar_data_wo_zeros removes the zeros from the previous equation
 # which ensures that the measurements are now only on the days
 
@@ -72,6 +75,8 @@ for (lag in 1:30) {
     }) 
 }
 
+write.csv(ar_data_wo_zeros[[30]], file = "./data/kinjal_ar_data_wo_zeros.csv", row.names = F)
+
 # Running Monthly Predictions - this is going to be a running 30 day sum window so 
 # that we can remove most of the noise of the predictions of the zeros
 
@@ -79,7 +84,8 @@ window_dat <- ldply(31:nrow(full_dat), function(i) {
   data.frame(Date = full_dat[i, "Date"], Outflow = sum(full_dat$Outflow[seq(i - 30, i - 1)]))
 })
 
-
+write.csv(window_dat, file = "./data/kinjal_running_monthly_window.csv", row.names = F)
+  
 
 
 
